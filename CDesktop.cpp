@@ -1432,9 +1432,10 @@ void CDesktop::Update()
 
 	const Uint8* state = SDL_GetKeyboardState(NULL);
 
+	CheckPid();
+
 	if (wpid != 0)
 	{
-		CheckPid();
 		mFaceTimer = SDL_GetTicks() + mSettings.mFaceInterval * 1000;
 	}
 

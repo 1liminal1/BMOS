@@ -1,13 +1,22 @@
-if ! pidof -x aplay > /dev/null
-then
-   /usr/bin/aplay -D default -t raw -r 48000 -c 2 -f S16_LE  /dev/zero &
-fi
+#!/bin/bash
+set -x
+exec 1> >(tee -a /home/pi/bmos_startup.log) 2>&1
 
-touch /home/pi/bmos/parade/parade.txt
+echo "=== BMO Starting $(date) ==="
 
+export DISPLAY=:0
+export XAUTHORITY=/home/pi/.Xauthority
+export XDG_RUNTIME_DIR=/run/user/1000
+
+echo "Initializing hardware..."
 /home/pi/bmos/scripts/armsinit.sh
-/home/pi/bmos/scripts/armsupslow.sh &
-omxplayer --aspect-mode fill --layer 10010 -o alsa --no-keys --no-osd /home/pi/bmos/videos/intro.mp4 > /dev/null &
+/home/pi/bmos/scripts/armsdown.sh &
 
+echo "Playing intro..."
+omxplayer --aspect-mode fill -o alsa --no-keys --no-osd /home/pi/bmos/videos/intro.mp4 &
+
+sleep 3.5
+
+echo "Starting BMO..."
 cd /home/pi/bmos/
-/home/pi/bmos/bmos
+./bmos

@@ -24,8 +24,25 @@ X:system:/home/pi/bmos/scripts/waveright.sh
 C:system:/home/pi/bmos/scripts/waveboth.sh
 V:system:/home/pi/bmos/scripts/armsdown.sh
 B:system:/home/pi/bmos/scripts/armsup.sh
+N:mp4:birsday.mp4:bmo02.jpg
+M:mp4:mmm.mp4:bmo21.jpg
 
 ;:vg:videogames.mp4
 
 random:hello.mp4
+random:ah.mp4
 random:beep1.mp4
+random:beep2.mp4
+random:bemore2.mp4
+random:birsday.mp4
+random:gameover.mp4
+random:AllYourBase.mp4
+random:SorryDave.mp4
+random:yippee.mp4
+random:smack.mp4
+random:ipad2.mp4
+random:Incoming.mp4
+random:hahaha.mp4
+random:Daisy.mp4
+random:GiantLeap.mp4
+random:mmm.mp4
