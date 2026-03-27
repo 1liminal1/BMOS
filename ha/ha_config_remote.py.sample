@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+"""
+Home Assistant Configuration for BMOS - REMOTE/INTERNET ACCESS
+Uses Nabu Casa for external access
+Copy this to ha_config_remote.py and fill in your actual values
+"""
+
+# Nabu Casa URLs (external access)
+HA_URL = "https://YOUR_NABU_CASA_URL.ui.nabu.casa"
+HA_WS_URL = "wss://YOUR_NABU_CASA_URL.ui.nabu.casa/api/websocket"
+
+# Same long-lived access token (works for both internal and external)
+# Create one in HA: Profile -> Security -> Long-Lived Access Tokens
+HA_TOKEN = "YOUR_LONG_LIVED_ACCESS_TOKEN"
+
+# Pipeline ID for your voice assistant
+# Find this in HA: Settings -> Voice Assistants -> Your Assistant -> Copy ID
+PIPELINE_ID = "YOUR_PIPELINE_ID"
