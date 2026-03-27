@@ -54,15 +54,16 @@ sudo apt-get install libboost-all-dev
 sudo apt-get install mpv  # Video playback (hardware accelerated on Pi 5)
 ```
 
-### For Voice Recognition
-```bash
-sudo apt-get install python3-pip python3-requests
-pip3 install SpeechRecognition
-```
-
-### For Home Assistant Voice (optional)
+### For Home Assistant Voice
 ```bash
 sudo apt-get install python3-requests python3-websockets
+```
+
+### For Google Voice Recognition (optional)
+If you prefer the original Google Speech Recognition instead of Home Assistant, see the [upstream BYOBMO repo](https://github.com/BYOBMO/BMOS).
+```bash
+sudo apt-get install python3-pip
+pip3 install SpeechRecognition
 ```
 
 ## Build
