@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+"""
+Home Assistant Configuration for BMOS - SAMPLE FILE
+Copy this to ha_config.py and fill in your actual values
+"""
+
+# Home Assistant URLs
+HA_URL = "https://YOUR_HA_URL"  # e.g., "https://homeassistant.local:8123"
+HA_WS_URL = "wss://YOUR_HA_URL/api/websocket"  # e.g., "wss://homeassistant.local:8123/api/websocket"
+
+# Long-lived access token from Home Assistant
+# Create one in HA: Profile -> Security -> Long-Lived Access Tokens
+HA_TOKEN = "YOUR_LONG_LIVED_ACCESS_TOKEN"
+
+# Pipeline ID for your voice assistant
+# Find this in HA: Settings -> Voice Assistants -> Your Assistant -> Copy ID
+PIPELINE_ID = "YOUR_PIPELINE_ID"

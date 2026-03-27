@@ -12,10 +12,13 @@ echo "Initializing hardware..."
 /home/pi/bmos/scripts/armsinit.sh
 /home/pi/bmos/scripts/armsdown.sh &
 
-echo "Playing intro..."
-omxplayer --aspect-mode fill -o alsa --no-keys --no-osd /home/pi/bmos/videos/intro.mp4 &
+# Kill feh splash screen before playing video
+killall feh 2>/dev/null
 
-sleep 3.5
+echo "Playing intro..."
+mpv --fs --ontop --quiet --really-quiet --no-input-default-bindings --no-osd-bar --osd-level=0 --volume=50 /home/pi/bmos/videos/intro.mp4 &
+
+sleep 5.5
 
 echo "Starting BMO..."
 cd /home/pi/bmos/

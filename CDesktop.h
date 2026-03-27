@@ -77,6 +77,11 @@ public:
 	bool mVoiceShutdown;
 	bool mVoiceReboot;
 
+	bool mTalking;
+	Uint32 mTalkingTimer;
+	int mTalkingFace;
+	pid_t mTalkingPid;
+
 	bool mRecording;
 	CSettings mSettings;
 	CJoystick mJoystick;

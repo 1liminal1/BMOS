@@ -36,6 +36,8 @@
 #ifndef WINDOWS
 #include <unistd.h>
 #include <sys/wait.h>
+#include <signal.h>
+#include <errno.h>
 #endif
 
 #ifdef WINDOWS
@@ -767,6 +769,8 @@ bool CheckUSB()
 #endif
 	return(found);
 }
+
+
 #undef main
 int main(int argc, char **argv)
 {

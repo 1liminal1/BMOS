@@ -47,6 +47,46 @@ CWindow* CDesktop::sFocused = NULL;
 
 int wpid = 0;
 
+#ifndef WINDOWS
+// Helper function to run background commands without creating zombie processes
+// Uses double-fork technique: fork -> child forks again -> child exits -> grandchild runs command
+// This way the grandchild is adopted by init which automatically reaps it
+void run_background_command(const char* command) {
+	pid_t pid = fork();
+
+	if (pid == 0) {
+		// First child process
+		pid_t pid2 = fork();
+
+		if (pid2 == 0) {
+			// Grandchild - run the command
+			// Redirect stdout/stderr to /dev/null to avoid blocking
+			int fd = open("/dev/null", O_WRONLY);
+			if (fd != -1) {
+				dup2(fd, STDOUT_FILENO);
+				dup2(fd, STDERR_FILENO);
+				close(fd);
+			}
+
+			// Execute the command via shell
+			execl("/bin/sh", "sh", "-c", command, (char*)NULL);
+
+			// If exec fails, exit
+			_exit(1);
+		}
+
+		// First child exits immediately (grandchild becomes orphan)
+		_exit(0);
+	} else if (pid > 0) {
+		// Parent process - wait for first child to exit
+		int status;
+		waitpid(pid, &status, 0);
+		// Grandchild is now running in background, adopted by init
+	}
+	// If fork failed, just return
+}
+#endif
+
 void CDesktop::BringFormToFront(CForm* frontForm)
 {
 	for (auto rit = std::begin(mForms); rit != std::end(mForms); ++rit)
@@ -142,6 +182,11 @@ CDesktop::CDesktop(): CWindow()
 	mVoiceReboot = false;
 	mVoiceShutdown = false;
 	mConfigureJoystick = -1;
+
+	mTalking = false;
+	mTalkingTimer = UINT32_MAX;
+	mTalkingFace = 0;
+	mTalkingPid = 0;
 
 	mFace = NULL;
 	mCursor = NULL;
@@ -588,7 +633,7 @@ void CDesktop::OnWindowMenu(CMenuBarItem* item)
 			SDL_Quit();
 
 #ifndef WINDOWS
-			system("/home/pi/bmos/scripts/emulaunch.sh -desktop &");
+			run_background_command("/home/pi/bmos/scripts/emulaunch.sh -desktop");
 #endif
 			SDL_DestroyRenderer(CApplication::sRenderer);
 			SDL_DestroyWindow(CApplication::sWindow);
@@ -764,7 +809,7 @@ void CDesktop::OnMenuVideoGames(CMenuBarItem* item)
 		SDL_Quit();
 
 
-		system("/home/pi/bmos/scripts/emulaunch.sh -desktop &");
+		run_background_command("/home/pi/bmos/scripts/emulaunch.sh -desktop");
 
 		SDL_DestroyRenderer(CApplication::sRenderer);
 		SDL_DestroyWindow(CApplication::sWindow);
@@ -1365,7 +1410,7 @@ int CheckPid()
 	pid = waitpid(wpid, &status, WNOHANG);
 	if (pid != 0)
 	{
-		printf("Thread over\n");
+		printf("Thread over: wpid=%d, pid=%d, status=%d\n", wpid, pid, status);
 		wpid = 0;
 	}
 	else
@@ -1437,6 +1482,33 @@ void CDesktop::Update()
 	if (wpid != 0)
 	{
 		mFaceTimer = SDL_GetTicks() + mSettings.mFaceInterval * 1000;
+	}
+
+	// Talking face animation while TTS is playing
+	if (mTalking)
+	{
+		// Check if aplay process is still running
+		if (mTalkingPid > 0)
+		{
+			int status;
+			pid_t result = waitpid(mTalkingPid, &status, WNOHANG);
+			if (result != 0)
+			{
+				// Process finished, stop talking animation
+				mTalking = false;
+				mTalkingPid = 0;
+				SetFace("bmo01.jpg");
+			}
+		}
+
+		// Cycle through talking faces
+		if (SDL_TICKS_PASSED_FIXED(ticks, mTalkingTimer))
+		{
+			const char* talkingFaces[] = {"bmo04.jpg", "bmo05.jpg", "bmo07.jpg"};
+			SetFace(talkingFaces[mTalkingFace]);
+			mTalkingFace = (mTalkingFace + 1) % 3;
+			mTalkingTimer = ticks + 120;
+		}
 	}
 
 	if (mVisible == false)
@@ -1797,7 +1869,7 @@ void CDesktop::OnTextEvent(SDL_TextInputEvent e)
 		{
 			PlayVideoSync((char*)kc.mArgument1.c_str());
 #ifndef WINDOWS
-			system("/home/pi/bmos/scripts/emulaunch.sh -desktop &");
+			run_background_command("/home/pi/bmos/scripts/emulaunch.sh -desktop");
 #endif
 			//printf("SDL Quit()\n");
 
@@ -2681,7 +2753,7 @@ void CDesktop::PlayVideoSync(char* filename)
 #ifdef WINDOWS
 	//printf("PlayVideo(%s)\n", filename);
 #else
-	sprintf(s, "omxplayer --aspect-mode fill --layer 10010 -o alsa --no-keys --no-osd /home/pi/bmos/videos/%s > /dev/null &", filename);
+	sprintf(s, "mpv --fs --ontop --quiet --really-quiet --no-input-default-bindings --no-osd-bar --osd-level=0 --volume=50 /home/pi/bmos/videos/%s > /dev/null 2>&1 &", filename);
 	system(s);
 #endif
 
@@ -2728,16 +2800,15 @@ void CDesktop::PlayVideo(char* filename, int face)
 		return;
 	}
 
-	char* argv[] = { (char*)"omxplayer",
-		(char*)"--aspect-mode",
-		(char*)"fill",
-		(char*)"--layer",
-		(char*)"10010",
-		(char*)"-o",
-		(char*)"alsa",
-		(char*)"--no-keys",
-		(char*)"--no-osd", (char*)
-		vide, NULL };
+	char* argv[] = { (char*)"mpv",
+		(char*)"--fs",
+		(char*)"--ontop",
+		(char*)"--quiet",
+		(char*)"--no-input-default-bindings",
+		(char*)"--no-osd-bar",
+		(char*)"--osd-level=0",
+		(char*)"--volume=50",
+		(char*)vide, NULL };
 
 #ifdef WINDOWS
 	//printf("PlayVideo(%s)\n", filename);
@@ -2766,14 +2837,15 @@ void CDesktop::PlayVideo(char* filename, int face)
 		int fd = open("/dev/null", O_RDWR, S_IRUSR | S_IWUSR);
 
 		dup2(fd, 1);   // make stdout go to file
-		execvp("omxplayer", argv);
+		dup2(fd, 2);   // make stderr go to file too
+		execvp("mpv", argv);
 		close(fd);
 	}
 	else {
 		// When fork() returns a positive number, we are in the parent process
 		// and the return value is the PID of the newly created child process.
 		wpid = pid;
-		//printf("wpid=%d\n", wpid);
+		printf("PlayVideo: Set wpid=%d\n", wpid);
 		//int status;
 		//
 		usleep(2000000);
@@ -2805,14 +2877,15 @@ void CDesktop::PlayVideoUSB(char* filename, int face)
 	sprintf(vide, "/media/usb/%s", filename);
 	char c2;
 
-	char* argv[] = { (char*)"omxplayer",
-		(char*)"--layer",
-		(char*)"10010",
-		(char*)"-o",
-		(char*)"alsa",
-		(char*)"--no-keys",
-		(char*)"--no-osd", (char*)
-		vide, NULL };
+	char* argv[] = { (char*)"mpv",
+		(char*)"--fs",
+		(char*)"--ontop",
+		(char*)"--quiet",
+		(char*)"--no-input-default-bindings",
+		(char*)"--no-osd-bar",
+		(char*)"--osd-level=0",
+		(char*)"--volume=50",
+		(char*)vide, NULL };
 
 #ifdef WINDOWS
 	//printf("PlayVideo(%s)\n", filename);
@@ -2833,10 +2906,15 @@ void CDesktop::PlayVideoUSB(char* filename, int face)
 		return;
 	}
 	else if (pid == 0) {
-		execvp("omxplayer", argv);
+		int fd = open("/dev/null", O_RDWR, S_IRUSR | S_IWUSR);
+		dup2(fd, 1);   // make stdout go to file
+		dup2(fd, 2);   // make stderr go to file too
+		execvp("mpv", argv);
+		close(fd);
 	}
 	else {
 		wpid = pid;
+		printf("PlayVideoUSB: Set wpid=%d\n", wpid);
 		usleep(2000000);
 	}
 #endif
@@ -2917,11 +2995,11 @@ void CDesktop::SetFace(std::string folder, std::string face)
 
 void CDesktop::StartRecord()
 {
-	//printf("StartRecord()\n");
+	printf("StartRecord() called\n");
 #ifndef WINDOWS
 	if (mRecordPid != 0)
 	{
-		//printf("mRecordPid %d\n", mRecordPid);
+		printf("Already recording, mRecordPid=%d\n", mRecordPid);
 		return;
 	}
 
@@ -2984,10 +3062,11 @@ void CDesktop::EndRecord()
 	char message[200];
 	message[0] = '\0';
 
+	printf("EndRecord() called\n");
 #ifndef WINDOWS
 	if (mRecordPid <= 0)
 	{
-		//printf("No recording: %d\n", mRecordPid);
+		printf("No recording to end: mRecordPid=%d\n", mRecordPid);
 		return;
 	}
 
@@ -3025,6 +3104,10 @@ void CDesktop::EndRecord()
 
 void CDesktop::ProcessGoogleVoice()
 {
+	system("echo 'ProcessGoogleVoice CALLED' >> /home/pi/bmos/debug.log");
+	fprintf(stderr, "=== ProcessGoogleVoice STARTED ===\n");
+	fflush(stderr);
+
 	CVoiceCommand vc;
 
 	//char message[1000];
@@ -3048,9 +3131,18 @@ void CDesktop::ProcessGoogleVoice()
 		return;
 	}
 #ifndef WINDOWS
-	string command = "/home/pi/bmos/scripts/google-voice.sh";
+	string command = "/home/pi/bmos/scripts/ha-voice.sh";
+
+	system("echo 'About to popen ha-voice.sh' >> /home/pi/bmos/debug.log");
+	fprintf(stderr, "About to execute: %s\n", command.c_str());
+	fflush(stderr);
 
 	cmd = popen(command.c_str(), "r");
+
+	system("echo 'popen completed' >> /home/pi/bmos/debug.log");
+	fprintf(stderr, "popen completed, reading output...\n");
+	fflush(stderr);
+
 	c = fgetc(cmd);
 	while (c != EOF)
 	{
@@ -3062,6 +3154,10 @@ void CDesktop::ProcessGoogleVoice()
 
 	printf("exec: %s\n", command.c_str());
 	printf("stdout: %s\n", stout);
+
+	system(("echo 'Script output: " + string(stout) + "' >> /home/pi/bmos/debug.log").c_str());
+	fprintf(stderr, "Script output: %s\n", stout);
+	fflush(stderr);
 
 	std::string str;
 	str = stout;
@@ -3082,9 +3178,90 @@ void CDesktop::ProcessGoogleVoice()
 
 	printf("Message: %s\n", message.c_str());
 
+	// Strip leading/trailing whitespace from message
 	std::string msg = message;
+	boost::algorithm::trim(msg);
 
-	vc = mVoiceCommands.ProcessMessage(message);
+	// Check for TTS response format: tts:/path/to/audio|action:wave_arms
+	if (msg.find("tts:") == 0)
+	{
+		printf("TTS response detected\n");
+
+		// Parse TTS path and optional action
+		std::string tts_path;
+		std::string action;
+
+		size_t pipe_pos = msg.find('|');
+		if (pipe_pos != std::string::npos)
+		{
+			// Has action
+			tts_path = msg.substr(4, pipe_pos - 4);  // Skip "tts:"
+			std::string action_part = msg.substr(pipe_pos + 1);
+
+			// Extract action name
+			size_t action_colon = action_part.find(':');
+			if (action_colon != std::string::npos)
+			{
+				action = action_part.substr(action_colon + 1);
+			}
+		}
+		else
+		{
+			// No action, just TTS
+			tts_path = msg.substr(4);  // Skip "tts:"
+		}
+
+		printf("TTS path: %s\n", tts_path.c_str());
+		printf("Action: %s\n", action.c_str());
+
+		// Boost volume to maximum before playing TTS
+		system("amixer set Master 100% 2>/dev/null");
+
+		// Start talking face animation and play TTS audio
+		mTalking = true;
+		mTalkingFace = 0;
+		mTalkingTimer = SDL_GetTicks();
+
+		// Fork aplay so we can track when it finishes
+		pid_t pid = fork();
+		if (pid == 0)
+		{
+			// Child process - play audio
+			execlp("aplay", "aplay", tts_path.c_str(), (char*)NULL);
+			exit(0);
+		}
+		else if (pid > 0)
+		{
+			// Parent process - save PID to monitor completion
+			mTalkingPid = pid;
+		}
+
+		// Execute action if present
+		if (!action.empty())
+		{
+			if (action == "wave_arms" || action == "wave_both")
+			{
+				run_background_command("/home/pi/bmos/servos/waveboth");
+			}
+			else if (action == "wave_right")
+			{
+				run_background_command("/home/pi/bmos/servos/waveright");
+			}
+			else if (action == "wave_left")
+			{
+				run_background_command("/home/pi/bmos/servos/waveleft");
+			}
+			else if (action == "defend")
+			{
+				run_background_command("/home/pi/bmos/scripts/choparm.sh");
+			}
+		}
+
+		fclose(cmd);
+		return;
+	}
+
+	vc = mVoiceCommands.ProcessMessage(msg);
 	printf("vc.mCommand=%s\n", vc.mCommand.c_str());
 	printf("vc.mArgument=%s\n", vc.mArgument.c_str());
 	fclose(cmd);
@@ -3139,7 +3316,7 @@ void CDesktop::ProcessGoogleVoice()
 		}
 		else
 		{
-			system((vc.mArgument + "&").c_str());
+			run_background_command(vc.mArgument.c_str());
 		}
 	}
 	else if (vc.mCommand == "mp4")
@@ -3164,7 +3341,7 @@ void CDesktop::ProcessGoogleVoice()
 		{
 			PlayVideoSync((char*)"videogames.mp4");
 #ifndef WINDOWS
-			system("/home/pi/bmos/scripts/emulaunch.sh -desktop &");
+			run_background_command("/home/pi/bmos/scripts/emulaunch.sh -desktop");
 #endif
 			SDL_DestroyRenderer(CApplication::sRenderer);
 			SDL_DestroyWindow(CApplication::sWindow);

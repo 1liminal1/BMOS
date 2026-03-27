@@ -8,28 +8,29 @@ Source code in this project is licensed under GNU General Public License v3.0
   
 Fonts are licensed under their respective licenses. See fonts folder for specific licenses.
   
-## Install
+## Dependencies
+
+### Required Packages
 Make sure you have installed all of this first:
 https://github.com/BYOBMO/BMO-Utils
 
-```
+```bash
 sudo apt update
-```
-```
 sudo apt-get install cmake
-```
-  ```
 sudo apt-get install libsdl2-image-dev
-  ```
-  ```
 sudo apt-get install libsdl2-ttf-dev
-  ```
-  ```
 sudo apt-get install libsdl2-mixer-dev
+sudo apt-get install libboost-all-dev
+sudo apt-get install mpv  # Video playback (hardware accelerated on Pi 5)
 ```
+
+### For Voice Recognition
+```bash
+sudo apt-get install python3-pip
+pip3 install SpeechRecognition
 ```
-  sudo apt-get install libboost-all-dev
-```
+
+## Install
 
   ## Build
   ```
