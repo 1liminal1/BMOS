@@ -94,10 +94,10 @@ Use WinSCP or similar to copy these files to Pi:
 
 Or via PowerShell/SCP:
 ```powershell
-scp C:\Users\YourUsername\BMOS\CDesktop.cpp pi@YOUR_PI_IP:/home/pi/bmos/
-scp C:\Users\YourUsername\BMOS\CDesktop.h pi@YOUR_PI_IP:/home/pi/bmos/
-scp C:\Users\YourUsername\BMOS\ha\ha_assist.py pi@YOUR_PI_IP:/home/pi/bmos/ha/
-scp C:\Users\YourUsername\BMOS\scripts\ha-voice.sh pi@YOUR_PI_IP:/home/pi/bmos/scripts/
+scp ./CDesktop.cpp pi@YOUR_PI_IP:/home/pi/bmos/
+scp ./CDesktop.h pi@YOUR_PI_IP:/home/pi/bmos/
+scp ./ha\ha_assist.py pi@YOUR_PI_IP:/home/pi/bmos/ha/
+scp ./scripts\ha-voice.sh pi@YOUR_PI_IP:/home/pi/bmos/scripts/
 ```
 
 ### 6. Make Scripts Executable

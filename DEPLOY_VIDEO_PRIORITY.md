@@ -22,9 +22,9 @@ Copy these files from Windows to Pi:
 
 ```powershell
 # From PowerShell on Windows:
-scp C:\Users\YourUsername\BMOS\ha\command_matcher.py pi@YOUR_PI_IP:/home/pi/bmos/ha/
-scp C:\Users\YourUsername\BMOS\ha\test_matcher.py pi@YOUR_PI_IP:/home/pi/bmos/ha/
-scp C:\Users\YourUsername\BMOS\ha\ha_assist_ws.py pi@YOUR_PI_IP:/home/pi/bmos/ha/
+scp ./ha\command_matcher.py pi@YOUR_PI_IP:/home/pi/bmos/ha/
+scp ./ha\test_matcher.py pi@YOUR_PI_IP:/home/pi/bmos/ha/
+scp ./ha\ha_assist_ws.py pi@YOUR_PI_IP:/home/pi/bmos/ha/
 ```
 
 ## Testing Steps
