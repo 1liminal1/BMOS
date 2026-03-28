@@ -4,15 +4,15 @@
 
 ```powershell
 # From Windows PowerShell:
-scp C:\Users\ShaneTwentyman\BMOS\ha\command_matcher.py pi@192.168.20.186:/home/pi/bmos/ha/
-scp C:\Users\ShaneTwentyman\BMOS\ha\test_matcher.py pi@192.168.20.186:/home/pi/bmos/ha/
-scp C:\Users\ShaneTwentyman\BMOS\ha\ha_assist_ws.py pi@192.168.20.186:/home/pi/bmos/ha/
+scp C:\Users\YourUsername\BMOS\ha\command_matcher.py pi@YOUR_PI_IP:/home/pi/bmos/ha/
+scp C:\Users\YourUsername\BMOS\ha\test_matcher.py pi@YOUR_PI_IP:/home/pi/bmos/ha/
+scp C:\Users\YourUsername\BMOS\ha\ha_assist_ws.py pi@YOUR_PI_IP:/home/pi/bmos/ha/
 ```
 
 ## Part 2: Test Command Matcher (Optional)
 
 ```bash
-ssh pi@192.168.20.186
+ssh pi@YOUR_PI_IP
 cd /home/pi/bmos/ha
 python3 test_matcher.py
 ```
@@ -33,7 +33,7 @@ Current value: **50** (50% volume, range 0-100)
 ### Test Different Volume Levels
 
 ```bash
-ssh pi@192.168.20.186
+ssh pi@YOUR_PI_IP
 
 # First, play a TTS file to hear reference volume
 aplay /home/pi/bmos/tts_response.wav

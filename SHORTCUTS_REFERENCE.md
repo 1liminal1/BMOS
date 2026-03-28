@@ -86,7 +86,7 @@ Any voice command not matching the above will be sent to Home Assistant LLM for 
 ### SSH Access
 
 ```bash
-ssh pi@192.168.20.186
+ssh pi@YOUR_PI_IP
 ```
 
 ### Service Management
@@ -157,14 +157,14 @@ BMOS uses **mpv** for video playback on Pi 5:
 
 **Network Transfer to Pi:**
 ```
-\\192.168.20.186\roms      # ROM files
-\\192.168.20.186\bios      # BIOS files
-\\192.168.20.186\configs   # Config files
+\\YOUR_PI_IP\roms      # ROM files
+\\YOUR_PI_IP\bios      # BIOS files
+\\YOUR_PI_IP\configs   # Config files
 ```
 
 **SCP from Windows:**
 ```bash
-scp file.ext pi@192.168.20.186:/home/pi/destination/
+scp file.ext pi@YOUR_PI_IP:/home/pi/destination/
 ```
 
 ## Development & Debugging
@@ -275,7 +275,7 @@ tail /home/pi/bmos_error.log | grep HA-Voice
 
 1. **SSH in and stop BMOS:**
    ```bash
-   ssh pi@192.168.20.186
+   ssh pi@YOUR_PI_IP
    sudo systemctl stop bmo
    ```
 

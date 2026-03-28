@@ -25,7 +25,7 @@ This setup adds LLM-powered voice responses to BMOS with talking face animation.
 
 ### 1. Install Python Dependencies on Pi
 ```bash
-ssh pi@192.168.20.186
+ssh pi@YOUR_PI_IP
 sudo apt-get install python3-requests
 ```
 
@@ -77,7 +77,7 @@ Only use action tags when appropriate to the conversation.
 From your Windows machine:
 ```bash
 # SSH to Pi
-ssh pi@192.168.20.186
+ssh pi@YOUR_PI_IP
 
 # Backup current BMOS binary
 cd /home/pi/bmos
@@ -94,22 +94,22 @@ Use WinSCP or similar to copy these files to Pi:
 
 Or via PowerShell/SCP:
 ```powershell
-scp C:\Users\ShaneTwentyman\BMOS\CDesktop.cpp pi@192.168.20.186:/home/pi/bmos/
-scp C:\Users\ShaneTwentyman\BMOS\CDesktop.h pi@192.168.20.186:/home/pi/bmos/
-scp C:\Users\ShaneTwentyman\BMOS\ha\ha_assist.py pi@192.168.20.186:/home/pi/bmos/ha/
-scp C:\Users\ShaneTwentyman\BMOS\scripts\ha-voice.sh pi@192.168.20.186:/home/pi/bmos/scripts/
+scp C:\Users\YourUsername\BMOS\CDesktop.cpp pi@YOUR_PI_IP:/home/pi/bmos/
+scp C:\Users\YourUsername\BMOS\CDesktop.h pi@YOUR_PI_IP:/home/pi/bmos/
+scp C:\Users\YourUsername\BMOS\ha\ha_assist.py pi@YOUR_PI_IP:/home/pi/bmos/ha/
+scp C:\Users\YourUsername\BMOS\scripts\ha-voice.sh pi@YOUR_PI_IP:/home/pi/bmos/scripts/
 ```
 
 ### 6. Make Scripts Executable
 ```bash
-ssh pi@192.168.20.186
+ssh pi@YOUR_PI_IP
 chmod +x /home/pi/bmos/ha/ha_assist.py
 chmod +x /home/pi/bmos/scripts/ha-voice.sh
 ```
 
 ### 7. Rebuild BMOS on Pi
 ```bash
-ssh pi@192.168.20.186
+ssh pi@YOUR_PI_IP
 cd /home/pi/bmos
 make clean
 make

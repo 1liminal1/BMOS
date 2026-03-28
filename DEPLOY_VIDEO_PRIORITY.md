@@ -22,16 +22,16 @@ Copy these files from Windows to Pi:
 
 ```powershell
 # From PowerShell on Windows:
-scp C:\Users\ShaneTwentyman\BMOS\ha\command_matcher.py pi@192.168.20.186:/home/pi/bmos/ha/
-scp C:\Users\ShaneTwentyman\BMOS\ha\test_matcher.py pi@192.168.20.186:/home/pi/bmos/ha/
-scp C:\Users\ShaneTwentyman\BMOS\ha\ha_assist_ws.py pi@192.168.20.186:/home/pi/bmos/ha/
+scp C:\Users\YourUsername\BMOS\ha\command_matcher.py pi@YOUR_PI_IP:/home/pi/bmos/ha/
+scp C:\Users\YourUsername\BMOS\ha\test_matcher.py pi@YOUR_PI_IP:/home/pi/bmos/ha/
+scp C:\Users\YourUsername\BMOS\ha\ha_assist_ws.py pi@YOUR_PI_IP:/home/pi/bmos/ha/
 ```
 
 ## Testing Steps
 
 ### 1. Test Command Matcher (Optional)
 ```bash
-ssh pi@192.168.20.186
+ssh pi@YOUR_PI_IP
 cd /home/pi/bmos/ha
 python3 test_matcher.py
 ```
@@ -143,7 +143,7 @@ These commands will now skip LLM and go directly to video/system:
 If this causes issues, revert to previous version:
 
 ```bash
-ssh pi@192.168.20.186
+ssh pi@YOUR_PI_IP
 cd /home/pi/bmos/ha
 
 # Restore original ha_assist_ws.py from backup

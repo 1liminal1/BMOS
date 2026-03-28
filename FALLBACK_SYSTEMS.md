@@ -75,8 +75,8 @@ NETWORKS=("IoT" "iPhone" "IQ" "NewNetwork")
 BMO voice assistant tries multiple Home Assistant URLs to maintain voice functionality when the primary server is unavailable.
 
 ### HA URL Priority
-1. **https://ha.liminal.net.au** (Primary) - Local Home Assistant instance
-2. **https://lde44q9vn4rz7nc4pad1dvdh7b8of2vl.ui.nabu.casa** (Fallback) - Nabu Casa remote access
+1. **https://YOUR_HA_DOMAIN** (Primary) - Local Home Assistant instance
+2. **https://YOUR_NABU_CASA_URL.ui.nabu.casa** (Fallback) - Nabu Casa remote access
 
 ### How It Works
 
@@ -91,7 +91,7 @@ The script automatically:
 ### Voice Pipeline with Fallback
 
 When BMO receives a voice command:
-1. Checks if primary HA (ha.liminal.net.au) is reachable
+1. Checks if primary HA (YOUR_HA_DOMAIN) is reachable
 2. If primary fails, tries Nabu Casa remote URL
 3. Sends audio to working HA for:
    - Speech-to-text (Whisper)
@@ -105,18 +105,18 @@ When BMO receives a voice command:
 
 **Example Log Output:**
 ```
-[16:40:20] HA-Voice: Checking HA at https://ha.liminal.net.au/api/
-[16:40:20] HA-Voice: HA available at https://ha.liminal.net.au
+[16:40:20] HA-Voice: Checking HA at https://YOUR_HA_DOMAIN/api/
+[16:40:20] HA-Voice: HA available at https://YOUR_HA_DOMAIN
 [16:40:20] HA-Voice: Sending to Assist Pipeline API
 ```
 
 or if fallback is used:
 
 ```
-[16:40:20] HA-Voice: Checking HA at https://ha.liminal.net.au/api/
-[16:40:20] HA-Voice: HA check failed for https://ha.liminal.net.au: Connection timeout
-[16:40:23] HA-Voice: Checking HA at https://lde44q9vn4rz7nc4pad1dvdh7b8of2vl.ui.nabu.casa/api/
-[16:40:23] HA-Voice: HA available at https://lde44q9vn4rz7nc4pad1dvdh7b8of2vl.ui.nabu.casa
+[16:40:20] HA-Voice: Checking HA at https://YOUR_HA_DOMAIN/api/
+[16:40:20] HA-Voice: HA check failed for https://YOUR_HA_DOMAIN: Connection timeout
+[16:40:23] HA-Voice: Checking HA at https://YOUR_NABU_CASA_URL.ui.nabu.casa/api/
+[16:40:23] HA-Voice: HA available at https://YOUR_NABU_CASA_URL.ui.nabu.casa
 ```
 
 ### Adding New HA URLs
@@ -131,8 +131,8 @@ nano /home/pi/bmos/ha/ha_assist.py
 2. Add URLs to the `HA_URLS` list in priority order:
 ```python
 HA_URLS = [
-    "https://ha.liminal.net.au",  # Primary
-    "https://lde44q9vn4rz7nc4pad1dvdh7b8of2vl.ui.nabu.casa",  # Nabu Casa
+    "https://YOUR_HA_DOMAIN",  # Primary
+    "https://YOUR_NABU_CASA_URL.ui.nabu.casa",  # Nabu Casa
     "https://new-ha-url.com"  # Additional fallback
 ]
 ```
@@ -165,7 +165,7 @@ nmcli device wifi
 
 1. Temporarily block primary HA (edit /etc/hosts):
 ```bash
-echo "127.0.0.1 ha.liminal.net.au" | sudo tee -a /etc/hosts
+echo "127.0.0.1 YOUR_HA_DOMAIN" | sudo tee -a /etc/hosts
 ```
 
 2. Try voice command in BMO
@@ -177,7 +177,7 @@ tail /home/pi/bmos/bmos_error.log
 
 4. Restore access:
 ```bash
-sudo sed -i '/127.0.0.1 ha.liminal.net.au/d' /etc/hosts
+sudo sed -i '/127.0.0.1 YOUR_HA_DOMAIN/d' /etc/hosts
 ```
 
 ## Files Changed
@@ -217,8 +217,8 @@ cat /home/pi/wifi-fallback.log
 
 **Check HA URLs are reachable:**
 ```bash
-curl -I https://ha.liminal.net.au/api/
-curl -I https://lde44q9vn4rz7nc4pad1dvdh7b8of2vl.ui.nabu.casa/api/
+curl -I https://YOUR_HA_DOMAIN/api/
+curl -I https://YOUR_NABU_CASA_URL.ui.nabu.casa/api/
 ```
 
 **Check HA token is valid:**

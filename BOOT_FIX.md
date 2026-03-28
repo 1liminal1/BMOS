@@ -149,7 +149,7 @@ Disabled EmulationStation autostart in LXDE configuration. EmulationStation now 
 To test the boot configuration, reboot the Pi:
 
 ```bash
-ssh pi@192.168.20.186
+ssh pi@YOUR_PI_IP
 sudo reboot
 ```
 
@@ -183,7 +183,7 @@ If you need to restore the original configuration:
 
 ### Restore Original Boot Parameters
 ```bash
-ssh pi@192.168.20.186
+ssh pi@YOUR_PI_IP
 sudo cp /boot/firmware/cmdline.txt.backup /boot/firmware/cmdline.txt
 sudo reboot
 ```

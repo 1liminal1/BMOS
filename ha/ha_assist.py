@@ -11,12 +11,21 @@ import os
 import re
 from datetime import datetime
 
-# Configuration - Home Assistant URLs in priority order
-HA_URLS = [
-    "https://ha.liminal.net.au",  # Primary - local HA
-    "https://lde44q9vn4rz7nc4pad1dvdh7b8of2vl.ui.nabu.casa"  # Fallback - Nabu Casa remote
-]
-HA_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI2ODYyMzhjM2MzOWE0YTBmYjhiNDhkOTBiMDlkNWEwOCIsImlhdCI6MTc2NzQwOTEwMiwiZXhwIjoyMDgyNzY5MTAyfQ.M3f052Zmq9zxMEhyKmyt2OeoXyd3aNy0a2olUd9kfQI"
+# Import configuration from ha_config.py (not tracked in git)
+# Copy ha_config.py.sample to ha_config.py and fill in your values
+try:
+    from ha_config import HA_URL, HA_TOKEN, PIPELINE_ID
+    HA_URLS = [HA_URL]
+    # Try to import remote URL for fallback
+    try:
+        from ha_config_remote import HA_URL as HA_REMOTE_URL
+        HA_URLS.append(HA_REMOTE_URL)
+    except ImportError:
+        pass
+except ImportError:
+    print("ERROR: ha_config.py not found. Copy ha_config.py.sample to ha_config.py and fill in your values.", file=sys.stderr)
+    sys.exit(1)
+
 CONVERSATION_ID = "conversation.bmopi"
 
 AUDIO_FILE = "/home/pi/bmos/out.wav"
